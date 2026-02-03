@@ -1,13 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap');
+
+:root {
+  --ink: #0f0a1a;
+  --ink-muted: #4c4764;
+  --canvas: #f5f2ff;
+  --accent: #635bff;
+  --accent-soft: rgba(99, 91, 255, 0.14);
+  --sunset: #ff9d6c;
+  --border: rgba(15, 10, 26, 0.08);
+  --card: #ffffff;
+  --shadow-soft: 0 12px 45px rgba(20, 14, 42, 0.08);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  min-height: 100vh;
+  font-family: 'Space Grotesk', 'Newsreader', sans-serif;
+  background: radial-gradient(circle at 20% 20%, #fdf4ff 0%, #f7f6ff 40%, #eff2ff 100%);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Space Grotesk', 'Fira Code', 'Courier New', monospace;
+}
+
+a {
+  color: inherit;
 }
