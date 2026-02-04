@@ -1,11 +1,31 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { TableBlock } from "../components/runtime/TableBlock";
 import { BlogPost } from "../types/blog";
-import { BlogCard } from "../components/blog/BlogCard";
-import "./Home.css";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const FALLBACK_IMAGE =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3R5bGU9ImZpbGw6IHJnYmEoMCwwLDAsMC4xNSk7IHRyYW5zZm9ybTogc2NhbGUoMC43NSkiPgogICAgICAgIDxwYXRoIGQ9Ik04LjUgMTMuNWwyLjUgMyAzLjUtNC41IDQuNSA2SDVtMTYgMVY1YTIgMiAwIDAgMC0yLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMnoiPjwvcGF0aD4KICAgICAgPC9zdmc+";
+
+const formatDate = (timestamp: string): string => {
+  const parsed = new Date(timestamp);
+  if (Number.isNaN(parsed.getTime())) {
+    return timestamp;
+  }
+  return parsed.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+};
+
+const buildSnippet = (content: string): string => {
+  if (!content) {
+    return "";
+  }
+  const trimmed = content.trim();
+  if (trimmed.length <= 220) {
+    return trimmed;
+  }
+  return `${trimmed.slice(0, 217)}...`;
+};
 
 const Home: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -13,23 +33,23 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const loadPosts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get<BlogPost[]>(`${API_BASE}/blogpost/?detailed=true`);
-      setPosts(Array.isArray(response.data) ? response.data : []);
-    } catch (err) {
-      console.error("Failed to load blog posts", err);
-      setError("Unable to load the blog feed right now. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
+    const loadPosts = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<BlogPost[]>(`${API_BASE}/blogpost/?detailed=true`);
+        setPosts(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        console.error("Failed to load blog posts", err);
+        setError("We cannot load the blog feed right now. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadPosts();
-  }, [loadPosts]);
+  }, []);
 
   const sortedPosts = useMemo(() => {
     return [...posts].sort((a, b) => {
@@ -39,47 +59,202 @@ const Home: React.FC = () => {
     });
   }, [posts]);
 
+  const handleReadMore = (postId: number) => {
+    navigate(`/blogpost/${postId}`);
+  };
+
   const handleAddBlog = () => {
     navigate("/blog/create");
   };
 
   return (
-    <div className="home-shell">
-      <section className="home-hero">
-        <p className="eyebrow">All-hands Dispatch</p>
-        <h1>Modeling Languages Blogpad</h1>
-        <p>
-          Capture every modeling insight, low-code discovery, and research drop on a living canvas. Your posts land inside the same
-          repository powering the blog homepage.
-        </p>
-        <div className="hero-actions">
-          <button className="primary-action" type="button" onClick={handleAddBlog}>
+    <div id="homepage-1770110865548">
+      <div
+        id="iqe93"
+        style={{ display: "flex", height: "100vh", fontFamily: "Arial, sans-serif", "--chart-color-palette": "default" } as React.CSSProperties}
+      >
+        <nav
+          id="i9j9w"
+          style={{
+            width: "250px",
+            background: "linear-gradient(135deg, #4b3c82 0%, #5a3d91 100%)",
+            color: "white",
+            padding: "20px",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            "--chart-color-palette": "default",
+          } as React.CSSProperties}
+        >
+          <h2 id="iyxxq" style={{ marginTop: 0, fontSize: "24px", marginBottom: "30px", fontWeight: "bold" }}>
+            MOLA
+          </h2>
+          <div id="ive02" style={{ display: "inline", flexDirection: "column", flex: 1, position: "relative" }}>
+            <a
+              id="i37df"
+              style={{
+                color: "white",
+                textDecoration: "none",
+                padding: "10px 15px",
+                display: "block",
+                background: "rgba(255,255,255,0.2)",
+                borderRadius: "4px",
+                marginBottom: "5px",
+              }}
+              href="/home"
+            >
+              Home
+            </a>
+          </div>
+          <button
+            type="button"
+            style={{
+              marginTop: "20px",
+              border: "none",
+              borderRadius: "999px",
+              padding: "10px 16px",
+              background: "#ffcc70",
+              color: "#3a2d60",
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+            onClick={handleAddBlog}
+          >
             Add Blog
           </button>
-                <button className="ghost-action" type="button" onClick={loadPosts} disabled={loading}>
-                  {loading ? "Refreshing..." : "Refresh feed"}
-          </button>
-        </div>
-      </section>
-
-      <section className="home-stream" aria-live="polite">
-              {loading && <div className="home-state">Loading community entries...</div>}
-        {!loading && error && <div className="home-state error">{error}</div>}
-        {!loading && !error && sortedPosts.length === 0 && (
-          <div className="home-state">No blog posts yet. Be the first to announce a modeling story.</div>
-        )}
-        {!loading && !error && sortedPosts.length > 0 && (
-          <div className="cards-grid">
-            {sortedPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
-            ))}
+          <p
+            id="ic0t6"
+            style={{
+              marginTop: "auto",
+              paddingTop: "20px",
+              borderTop: "1px solid rgba(255,255,255,0.2)",
+              fontSize: "20px",
+              opacity: 0.8,
+              textAlign: "center",
+            }}
+          >
+            This page is 80% generated by BESSER and 20% by AI (exact numbers)
+          </p>
+        </nav>
+        <main id="ivbck" style={{ flex: 1, padding: "40px", overflowY: "auto", background: "#f5f5f5" }}>
+          <h1 id="im20s" style={{ marginTop: 0, color: "#333", fontSize: "32px", marginBottom: "10px" }}>
+            Welcome to MOdeling-LAnguages
+          </h1>
+          <p id="i2oys" style={{ color: "#666", marginBottom: "30px" }}>
+            This is the page where everyone can talk about models (not these kinds of models) and stuff related to models
+          </p>
+          <div
+            id="irzqv"
+            className="gjs-row"
+            style={{
+              width: "100%",
+              padding: "10px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "20px",
+            }}
+          >
+            <div id="icysx9" className="gjs-cell" style={{ flex: "1 1 calc(33.333% - 20px)", minWidth: "250px" }}>
+              <TableBlock
+                id="iwvjt"
+                styles={{ width: "100%", minHeight: "400px" }}
+                title="BlogPost List"
+                options={{
+                  showHeader: true,
+                  stripedRows: false,
+                  showPagination: true,
+                  rowsPerPage: 5,
+                  actionButtons: true,
+                  columns: [
+                    { label: "Title", column_type: "field", field: "title", type: "str", required: true },
+                    { label: "AuthorName", column_type: "field", field: "authorName", type: "str", required: true },
+                    { label: "Timestamp", column_type: "field", field: "timestamp", type: "date", required: true },
+                  ],
+                }}
+                dataBinding={{ entity: "BlogPost", endpoint: "/blogpost/" }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px", margin: "20px" }}>
+                {loading && <p>Loading blog posts...</p>}
+                {!loading && error && <p style={{ color: "#b42318" }}>{error}</p>}
+                {!loading && !error && sortedPosts.length === 0 && <p>No blog posts available yet.</p>}
+                {!loading && !error &&
+                  sortedPosts.map((post) => {
+                    const snippet = buildSnippet(post.content);
+                    const cover = post.image && post.image.trim().length > 0 ? post.image : FALLBACK_IMAGE;
+                    return (
+                      <div
+                        key={post.id}
+                        style={{
+                          background: "white",
+                          borderRadius: "8px",
+                          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                          padding: "30px",
+                        }}
+                      >
+                        <p style={{
+                          textTransform: "uppercase",
+                          letterSpacing: "0.2em",
+                          fontSize: "0.75rem",
+                          color: "#4c4764",
+                          margin: 0,
+                        }}>
+                          {formatDate(post.timestamp)}
+                        </p>
+                        <h3 style={{ marginTop: "8px", color: "#333" }}>{post.title}</h3>
+                        <img
+                          src={cover}
+                          alt={post.title}
+                          style={{ width: "100%", borderRadius: "6px", margin: "15px 0" }}
+                        />
+                        <p style={{ color: "#555" }}>{snippet}</p>
+                        <p style={{ color: "#777", fontSize: "0.9rem" }}>{post.authorName}</p>
+                        <button
+                          type="button"
+                          style={{
+                            background: "#2196f3",
+                            color: "white",
+                            border: "none",
+                            padding: "10px 20px",
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleReadMore(post.id)}
+                        >
+                          Read more
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+            <div id="i5zgq1" className="gjs-cell" style={{ flex: "1 1 calc(33.333% - 20px)", minWidth: "250px" }}>
+              <section id="ih53g">
+                <div id="i4lsc" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+                  <h2 id="iqj98">Showcase your tools to all modeling visitors</h2>
+                </div>
+              </section>
+              <section id="ih53g-2" style={{ padding: "60px 0", background: "#f5f5f5" }}>
+                <div id="ibrq0z" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+                  <h2 id="iohwwl">The low-code handbook</h2>
+                  <img
+                    id="ib1myi"
+                    style={{ color: "black", float: "left", display: "inline", width: "190px", height: "235px" }}
+                    src="data:image/jpeg;base64,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"
+                  />
+                </div>
+              </section>
+              <section id="ih53g-2-3" style={{ padding: "60px 0", background: "#f5f5f5" }}>
+                <div id="irea0i" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }} />
+                <p>Code less, deliver faster</p>
+              </section>
+              <section id="ih53g-2-3-2" style={{ padding: "60px 0", background: "#f5f5f5" }}>
+                <div id="i0mbv8" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }} />
+                <p style={{ padding: "10px" }}>Modeling: all you need to know</p>
+              </section>
+            </div>
           </div>
-        )}
-      </section>
-
-      <button className="add-blog-floating" type="button" onClick={handleAddBlog}>
-        + Add Blog
-      </button>
+        </main>
+      </div>
     </div>
   );
 };
